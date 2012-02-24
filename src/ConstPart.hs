@@ -20,7 +20,7 @@ instance (Format x a, Format a b) => Format x (a:::b) where
     display f x (a:::b) = display f x a ++ display f a b
 
 instance (Parse a, Parse b) => Parse (a:::b) where
-    parse = (:::) <$> (parse <* colin) <*> parse
+    parse = (:::) <$> (parse <* colon) <*> parse
 
 instance TwoTuple (:::) where
     toTuple (a:::b) = (a,b)
