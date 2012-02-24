@@ -13,10 +13,11 @@ module Parse
     , liftReadS
     ) where
 
-import Control.Applicative hiding (many)
+import Control.Applicative
+import Control.Monad
 import Data.Maybe (listToMaybe)
 import Data.Ratio ((%))
-import Text.ParserCombinators.Parsec hiding (Parser, parse)
+import Text.ParserCombinators.Parsec hiding (Parser, parse, many)
 
 type Parser = GenParser Char ()
 class Parse a where parse :: Parser a
@@ -26,13 +27,13 @@ instance Parse Rational where parse = (%) <$> (parse <* slash) <*> parse
 instance Parse a => Parse (Maybe a) where parse = optionMaybe parse
 
 colon, dot, slash, whitespace :: Parser ()
-colon = string ":" *> pure ()
-dot = string "." *> pure ()
-slash = string "/" *> pure ()
-whitespace = many1 (oneOf " \t") *> pure ()
+colon      = void $ char ':'
+dot        = void $ char '.'
+slash      = void $ char '\\'
+whitespace = void $ oneOf " \t"
 
 whited :: Parser a -> Parser a
-whited x = w *> x <* w where w = many (oneOf " \t")
+whited x = w *> x <* w where w = many whitespace
 
 liftReadS :: ReadS a -> String -> Parser a
 liftReadS f = maybe (unexpected "no parse") (pure . fst) .
